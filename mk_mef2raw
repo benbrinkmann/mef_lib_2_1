@@ -1,0 +1,2 @@
+icc mef2raw32.c -o mef2raw mef_lib.c AES_encryption.c -I/Users/bbrink/Dropbox/src/c/include
+mv mef2raw /Users/bbrink/bin
