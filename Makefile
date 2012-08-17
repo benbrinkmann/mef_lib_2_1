@@ -1,27 +1,21 @@
+CC = gcc
+CFLAGS = -arch x86_64
+OPTFLAGS = -O3 
+SRCFILES = mef_lib.c
+INCLUDE = .
+	
+read: #build read header
+	$(CC) -o show_mef_header $(CFLAGS) $(OPTFLAGS) read_mef_header.c $(SRCFILES) -I $(INCLUDE)
+	
+check: #build mef file check program
+	$(CC) -o check_mef $(CFLAGS) $(OPTFLAGS) check_mef.c $(SRCFILES) -I $(INCLUDE)
 
-# standard make variables
+anon:
+	$(CC) -o anon_mef $(CFLAGS) $(OPTFLAGS) anon_mef.c $(SRCFILES) -I $(INCLUDE) 
+	
+m2r: #build mef2raw32
+	$(CC) -o mef2raw $(CFLAGS) $(OPTFLAGS) mef2raw32.c $(SRCFILES) -I $(INCLUDE)
 
-LIB = ../../lib/libgen_funcs.a
-CFLAGS = -I../../include -m32 -O3
-CC = icc
-
-# library components
-
-$(LIB):	$(LIB)(check_endedness.o)
-$(LIB):	$(LIB)(fexists.o)
-$(LIB):	$(LIB)(reverse_to_copy.o)
-$(LIB):	$(LIB)(reverse_in_place.o)
-
-
-
-
-# component dependencies
-
-$(LIB)(LIB)(check_endedness.o):		size_types.h
-$(LIB)(LIB)(fexists.o):			size_types.h
-$(LIB)(LIB)(reverse_to_copy.o):		size_types.h
-$(LIB)(LIB)(reverse_in_place.o):	size_types.h
-
-
-
+all:  read check anon m2r  
+	
 

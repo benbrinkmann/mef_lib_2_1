@@ -1,2 +1,0 @@
-gcc read_mef_header.c -o rmh mef_lib.c AES_encryption.c -I/Users/bbrink/Dropbox/src/c/include
-mv rmh /Users/bbrink/bin
