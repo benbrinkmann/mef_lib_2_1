@@ -25,5 +25,5 @@ Additional information about the MEF file format is available via academic publi
 
 Brinkmann BH, Bower MR, Stengel KA, Worrell GA, Stead M. “Multiscale electrophysiology format: an open-source electrophysiology format using data compression, encryption, and cyclic redundancy check”. Conf Proc IEEE Eng Med Biol Soc. 2009;2009:7083-7086.  
 Brinkmann BH, Bower MR, Stengel KA, Worrell GA, Stead M. “Large-scale electrophysiology: acquisition, compression, encryption, and storage of big data”. J Neurosci Methods. 2009;180(1):185-192.  
-Bower, Mark R, Matt Stead, Benjamin H Brinkmann, Kevin Dufendach, and Gregory A Worrell. “Metadata and Annotations for Multi-scale Electrophysiological Data.” Conf Proc IEEE Eng Med Biol Soc. 2009; 2009:2811–2814.
+Bower MR, Stead M, Brinkmann BH, Dufendach K, Worrell GA. “Metadata and Annotations for Multi-scale Electrophysiological Data.” Conf Proc IEEE Eng Med Biol Soc. 2009; 2009:2811–2814.
 
