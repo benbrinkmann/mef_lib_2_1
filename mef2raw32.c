@@ -38,8 +38,6 @@ int main (int argc, const char * argv[]) {
 	MEF_HEADER_INFO header;
 	RED_BLOCK_HDR_INFO RED_bk_hdr;
 	INDEX_DATA *indx_array;
-	void AES_KeyExpansion();
-	ui8 RED_decompress_block();
 
 	blocks_per_cycle = 5000;
 	memset(password, 0, 16);
@@ -64,7 +62,6 @@ int main (int argc, const char * argv[]) {
 		fprintf(stderr, "Error opening file %s\n", argv[1]);
 		return 1;
 	}
-
 	
 	num = fread(hdr_block, 1, MEF_HEADER_LENGTH, fp);
 	if (num != MEF_HEADER_LENGTH) {
@@ -82,7 +79,7 @@ int main (int argc, const char * argv[]) {
 
 	numBlocks = header.number_of_index_entries;
 	numEntries = header.number_of_samples;
-	printf("numentries %"PRId64"\n", numEntries);
+
 	//	inDataLength = header.index_data_offset - header.header_length;
 	inDataLength = blocks_per_cycle * header.maximum_compressed_block_size;
 	if (header.data_encryption_used) {

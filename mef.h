@@ -1,8 +1,24 @@
 /*									mef_header_2_1.h
 *
 * Specification for Mayo EEG Format (MEF) version 2.1, 
-* copyright 2012, Mayo Foundation, Rochester MN. All rights reserved
-* usage and modification of the MEF source code is governed by the Apache 2.0 license
+ # Copyright 2012, Mayo Foundation, Rochester MN. All rights reserved
+ # Written by Ben Brinkmann, Matt Stead, and Dan Crepeau
+ # usage and modification of this source code is governed by the Apache 2.0 license
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ # 
+ #   http://www.apache.org/licenses/LICENSE-2.0
+ # 
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
+ 
+ Thanks to all who acknowledge the Mayo Systems Electrophysiology Laboratory, Rochester, MN
+ in academic publications of their work facilitated by this software.
 
  This file specifies the offsets to and sizes of (in bytes) all header values needed for generation of .mef files, as
  well as a structure for the header. Data types are specified in comments where applicable, shorthand notation as follows 
@@ -14,9 +30,10 @@
   signed int		si4
   unsigned int		ui4
   float			sf4
-  long signedint	si8
+  long signed int	si8
   long unsigned int	ui8
   double		sf8
+  long double		sf16
   n-char string		$(n)  -allow 1 space for termination character
 
  Header Encryption:
@@ -42,22 +59,21 @@
 #ifndef _MEF_H
 #define _MEF_H
 
-#include <stdint.h>
-#include <inttypes.h>
-
-
-/* 64-bit typedefs - clearer nomenclature */
-typedef char			si1;
-typedef unsigned char	ui1;
-typedef int16_t			si2;
-typedef uint16_t		ui2;
-typedef int32_t			si4;
-typedef uint32_t		ui4;
-typedef int64_t			si8;
-typedef uint64_t		ui8;
-typedef float			sf4;
-typedef double			sf8;
-
+#ifndef SIZE_TYPES_IN
+#define SIZE_TYPES_IN
+	/* 64-bit typedefs - clearer nomenclature */
+	typedef char			si1;
+	typedef unsigned char		ui1;
+	typedef short			si2;
+	typedef unsigned short		ui2;
+	typedef int			si4;
+	typedef unsigned int		ui4;
+	typedef long int		si8;
+	typedef long unsigned int	ui8;
+	typedef float			sf4;
+	typedef double			sf8;
+	typedef long double		sf16;
+#endif
 
 #define MEF_FALSE 0
 #define MEF_TRUE 1
@@ -65,122 +81,122 @@ typedef double			sf8;
 
 /************* header version & constants *******************/
 
-#define HEADER_MAJOR_VERSION				2
-#define HEADER_MINOR_VERSION				1
-#define MEF_HEADER_LENGTH					1024
-#define DATA_START_OFFSET					MEF_HEADER_LENGTH
-#define UNENCRYPTED_REGION_OFFSET			0
-#define UNENCRYPTED_REGION_LENGTH			176
-#define SUBJECT_ENCRYPTION_OFFSET			176
-#define SUBJECT_ENCRYPTION_LENGTH			160
-#define SESSION_ENCRYPTION_OFFSET			352
-#define SESSION_ENCRYPTION_LENGTH			512 //maintain multiple of 16
-#define ENCRYPTION_BLOCK_BITS				128
-#define ENCRYPTION_BLOCK_BYTES				(ENCRYPTION_BLOCK_BITS / 8)
+#define HEADER_MAJOR_VERSION		2
+#define HEADER_MINOR_VERSION		1
+#define MEF_HEADER_LENGTH		1024
+#define DATA_START_OFFSET		MEF_HEADER_LENGTH
+#define UNENCRYPTED_REGION_OFFSET	0
+#define UNENCRYPTED_REGION_LENGTH	176
+#define SUBJECT_ENCRYPTION_OFFSET	176
+#define SUBJECT_ENCRYPTION_LENGTH	160
+#define SESSION_ENCRYPTION_OFFSET	352
+#define SESSION_ENCRYPTION_LENGTH	512 //maintain multiple of 16
+#define ENCRYPTION_BLOCK_BITS		128
+#define ENCRYPTION_BLOCK_BYTES		(ENCRYPTION_BLOCK_BITS / 8)
 
-#define SAMPLE_VALUE_NAN             (si4) 0xFF800000
-#define SAMPLE_VALUE_NEG_INFINITY    (si4) 0xFF800001
-#define SAMPLE_VALUE_POS_INFINITY    (si4) 0x007FFFFF
+#define SAMPLE_VALUE_NAN		(si4) 0xFF800000
+#define SAMPLE_VALUE_NEG_INFINITY	(si4) 0xFF800001
+#define SAMPLE_VALUE_POS_INFINITY	(si4) 0x007FFFFF
 
-#define DMA_HIGH_FREQUENCY_FILTER           9000.0
+#define DMA_HIGH_FREQUENCY_FILTER	9000.0
 
 
 /******************** header fields *************************/
 
 // Begin Unencrypted Block
-#define INSTITUTION_OFFSET					0
-#define INSTITUTION_LENGTH					64		// $(63)
+#define INSTITUTION_OFFSET			0
+#define INSTITUTION_LENGTH			64		// $(63)
 #define UNENCRYPTED_TEXT_FIELD_OFFSET		64
 #define UNENCRYPTED_TEXT_FIELD_LENGTH		64		// $(63)
-#define ENCRYPTION_ALGORITHM_OFFSET			128
-#define ENCRYPTION_ALGORITHM_LENGTH			32		// $(29)
+#define ENCRYPTION_ALGORITHM_OFFSET		128
+#define ENCRYPTION_ALGORITHM_LENGTH		32		// $(29)
 #define SUBJECT_ENCRYPTION_USED_OFFSET		160
 #define SUBJECT_ENCRYPTION_USED_LENGTH		1		// ui1
 #define SESSION_ENCRYPTION_USED_OFFSET		161
 #define SESSION_ENCRYPTION_USED_LENGTH		1		// ui1
-#define DATA_ENCRYPTION_USED_OFFSET			162
-#define DATA_ENCRYPTION_USED_LENGTH			1		// ui1
-#define BYTE_ORDER_CODE_OFFSET				163
-#define BYTE_ORDER_CODE_LENGTH				1		// ui1
-#define HEADER_MAJOR_VERSION_OFFSET			164
-#define HEADER_MAJOR_VERSION_LENGTH			1		// ui1
-#define HEADER_MINOR_VERSION_OFFSET			165
-#define HEADER_MINOR_VERSION_LENGTH			1		// ui1
-#define HEADER_LENGTH_OFFSET				166
-#define HEADER_LENGTH_LENGTH				2		// ui2
-#define SESSION_UNIQUE_ID_OFFSET			168
-#define SESSION_UNIQUE_ID_LENGTH			8		// ui1
+#define DATA_ENCRYPTION_USED_OFFSET		162
+#define DATA_ENCRYPTION_USED_LENGTH		1		// ui1
+#define BYTE_ORDER_CODE_OFFSET			163
+#define BYTE_ORDER_CODE_LENGTH			1		// ui1
+#define HEADER_MAJOR_VERSION_OFFSET		164
+#define HEADER_MAJOR_VERSION_LENGTH		1		// ui1
+#define HEADER_MINOR_VERSION_OFFSET		165
+#define HEADER_MINOR_VERSION_LENGTH		1		// ui1
+#define HEADER_LENGTH_OFFSET			166
+#define HEADER_LENGTH_LENGTH			2		// ui2
+#define SESSION_UNIQUE_ID_OFFSET		168
+#define SESSION_UNIQUE_ID_LENGTH		8		// ui1
 // End Unencrypted Block
 
 // Begin Subject Encrypted Block
-#define SUBJECT_FIRST_NAME_OFFSET			176
-#define SUBJECT_FIRST_NAME_LENGTH			32		// $(31)
-#define SUBJECT_SECOND_NAME_OFFSET			208
-#define SUBJECT_SECOND_NAME_LENGTH			32		// $(31)
-#define SUBJECT_THIRD_NAME_OFFSET			240
-#define SUBJECT_THIRD_NAME_LENGTH			32		// $(31)
-#define SUBJECT_ID_OFFSET					272
-#define SUBJECT_ID_LENGTH					32		// $(31)
-#define SESSION_PASSWORD_OFFSET				304
-#define SESSION_PASSWORD_LENGTH				ENCRYPTION_BLOCK_BYTES		// $(15)
+#define SUBJECT_FIRST_NAME_OFFSET		176
+#define SUBJECT_FIRST_NAME_LENGTH		32		// $(31)
+#define SUBJECT_SECOND_NAME_OFFSET		208
+#define SUBJECT_SECOND_NAME_LENGTH		32		// $(31)
+#define SUBJECT_THIRD_NAME_OFFSET		240
+#define SUBJECT_THIRD_NAME_LENGTH		32		// $(31)
+#define SUBJECT_ID_OFFSET			272
+#define SUBJECT_ID_LENGTH			32		// $(31)
+#define SESSION_PASSWORD_OFFSET			304
+#define SESSION_PASSWORD_LENGTH			ENCRYPTION_BLOCK_BYTES		// $(15)
 #define SUBJECT_VALIDATION_FIELD_OFFSET		320
 #define SUBJECT_VALIDATION_FIELD_LENGTH		16
 // End Subject Encrypted Block
 
 // Begin Protected Block
-#define PROTECTED_REGION_OFFSET				336
-#define PROTECTED_REGION_LENGTH				16
+#define PROTECTED_REGION_OFFSET			336
+#define PROTECTED_REGION_LENGTH			16
 // End Protected Block
 
 // Begin Session Encrypted Block
 #define SESSION_VALIDATION_FIELD_OFFSET		352
 #define SESSION_VALIDATION_FIELD_LENGTH		16		// ui1
-#define NUMBER_OF_SAMPLES_OFFSET			368
-#define NUMBER_OF_SAMPLES_LENGTH			8		// ui8
-#define CHANNEL_NAME_OFFSET					376
-#define CHANNEL_NAME_LENGTH					32		// $(31)	
-#define RECORDING_START_TIME_OFFSET			408
-#define RECORDING_START_TIME_LENGTH			8		// ui8
-#define RECORDING_END_TIME_OFFSET			416
-#define RECORDING_END_TIME_LENGTH			8		// ui8
-#define SAMPLING_FREQUENCY_OFFSET			424
-#define SAMPLING_FREQUENCY_LENGTH			8		// sf8
-#define LOW_FREQUENCY_FILTER_SETTING_OFFSET		432
-#define LOW_FREQUENCY_FILTER_SETTING_LENGTH		8		// sf8
+#define NUMBER_OF_SAMPLES_OFFSET		368
+#define NUMBER_OF_SAMPLES_LENGTH		8		// ui8
+#define CHANNEL_NAME_OFFSET			376
+#define CHANNEL_NAME_LENGTH			32		// $(31)	
+#define RECORDING_START_TIME_OFFSET		408
+#define RECORDING_START_TIME_LENGTH		8		// ui8
+#define RECORDING_END_TIME_OFFSET		416
+#define RECORDING_END_TIME_LENGTH		8		// ui8
+#define SAMPLING_FREQUENCY_OFFSET		424
+#define SAMPLING_FREQUENCY_LENGTH		8		// sf8
+#define LOW_FREQUENCY_FILTER_SETTING_OFFSET	432
+#define LOW_FREQUENCY_FILTER_SETTING_LENGTH	8		// sf8
 #define HIGH_FREQUENCY_FILTER_SETTING_OFFSET	440
 #define HIGH_FREQUENCY_FILTER_SETTING_LENGTH	8		// sf8
 #define NOTCH_FILTER_FREQUENCY_OFFSET		448
 #define NOTCH_FILTER_FREQUENCY_LENGTH		8		// sf8
 #define VOLTAGE_CONVERSION_FACTOR_OFFSET	456
 #define VOLTAGE_CONVERSION_FACTOR_LENGTH	8		// sf8
-#define ACQUISITION_SYSTEM_OFFSET			464
-#define ACQUISITION_SYSTEM_LENGTH			32		// $(31)
-#define CHANNEL_COMMENTS_OFFSET				496
-#define CHANNEL_COMMENTS_LENGTH				128		// $(127)
-#define STUDY_COMMENTS_OFFSET				624
-#define STUDY_COMMENTS_LENGTH				128		// $(127)
+#define ACQUISITION_SYSTEM_OFFSET		464
+#define ACQUISITION_SYSTEM_LENGTH		32		// $(31)
+#define CHANNEL_COMMENTS_OFFSET			496
+#define CHANNEL_COMMENTS_LENGTH			128		// $(127)
+#define STUDY_COMMENTS_OFFSET			624
+#define STUDY_COMMENTS_LENGTH			128		// $(127)
 #define PHYSICAL_CHANNEL_NUMBER_OFFSET		752
 #define PHYSICAL_CHANNEL_NUMBER_LENGTH		4		// si4
 #define COMPRESSION_ALGORITHM_OFFSET		756
 #define COMPRESSION_ALGORITHM_LENGTH		32		// $(31)
 #define MAXIMUM_COMPRESSED_BLOCK_SIZE_OFFSET	788
 #define MAXIMUM_COMPRESSED_BLOCK_SIZE_LENGTH	4		// ui4
-#define MAXIMUM_BLOCK_LENGTH_OFFSET			792
-#define MAXIMUM_BLOCK_LENGTH_LENGTH			8		// ui8
-#define BLOCK_INTERVAL_OFFSET				800
-#define BLOCK_INTERVAL_LENGTH				8		// sf8
-#define MAXIMUM_DATA_VALUE_OFFSET			808
-#define MAXIMUM_DATA_VALUE_LENGTH			4		// si4
-#define MINIMUM_DATA_VALUE_OFFSET			812
-#define MINIMUM_DATA_VALUE_LENGTH			4		// si4
-#define INDEX_DATA_OFFSET_OFFSET			816
-#define	INDEX_DATA_OFFSET_LENGTH			8		// ui8
+#define MAXIMUM_BLOCK_LENGTH_OFFSET		792
+#define MAXIMUM_BLOCK_LENGTH_LENGTH		8		// ui8
+#define BLOCK_INTERVAL_OFFSET			800
+#define BLOCK_INTERVAL_LENGTH			8		// sf8
+#define MAXIMUM_DATA_VALUE_OFFSET		808
+#define MAXIMUM_DATA_VALUE_LENGTH		4		// si4
+#define MINIMUM_DATA_VALUE_OFFSET		812
+#define MINIMUM_DATA_VALUE_LENGTH		4		// si4
+#define INDEX_DATA_OFFSET_OFFSET		816
+#define	INDEX_DATA_OFFSET_LENGTH		8		// ui8
 #define NUMBER_OF_INDEX_ENTRIES_OFFSET		824
 #define NUMBER_OF_INDEX_ENTRIES_LENGTH		8		// ui8
-#define BLOCK_HEADER_LENGTH_OFFSET			832
-#define BLOCK_HEADER_LENGTH_LENGTH			2		// ui2
-#define GMT_OFFSET_OFFSET					836
-#define GMT_OFFSET_LENGTH					4		//sf4
+#define BLOCK_HEADER_LENGTH_OFFSET		832
+#define BLOCK_HEADER_LENGTH_LENGTH		2		// ui2
+#define GMT_OFFSET_OFFSET			836
+#define GMT_OFFSET_LENGTH			4		//sf4
 #define DISCONTINUITY_DATA_OFFSET_OFFSET	840
 #define DISCONTINUITY_DATA_OFFSET_LENGTH	8		//ui8
 #define NUMBER_OF_DISCONTINUITY_ENTRIES_OFFSET	848
@@ -188,12 +204,12 @@ typedef double			sf8;
 // End Session Encrypted Block
 
 // Begin Unencrypted Block
-#define FILE_UNIQUE_ID_OFFSET               948
-#define FILE_UNIQUE_ID_LENGTH               8
+#define FILE_UNIQUE_ID_OFFSET			948
+#define FILE_UNIQUE_ID_LENGTH			8
 #define ANONYMIZED_SUBJECT_NAME_OFFSET		956
 #define ANONYMIZED_SUBJECT_NAME_LENGTH		64		//$(63)
-#define HEADER_CRC_OFFSET					1020
-#define HEADER_CRC_LENGTH					4		//ui4
+#define HEADER_CRC_OFFSET			1020
+#define HEADER_CRC_LENGTH			4		//ui4
 // End Unencrypted Block
 
 /******************** structure & type definitions *****************/
@@ -207,82 +223,82 @@ typedef struct {
 
 
 typedef struct {
-	si1	institution[INSTITUTION_LENGTH];
-	si1	unencrypted_text_field[UNENCRYPTED_TEXT_FIELD_LENGTH];
-	si1	encryption_algorithm[ENCRYPTION_ALGORITHM_LENGTH];
-	ui1	subject_encryption_used;
-	ui1	session_encryption_used;
-	ui1	data_encryption_used;
-	ui1	byte_order_code;
-	ui1	header_version_major;
-	ui1	header_version_minor;
-	ui1	session_unique_ID[SESSION_UNIQUE_ID_LENGTH];
-	ui2	header_length;
-	si1	subject_first_name[SUBJECT_FIRST_NAME_LENGTH];
-	si1	subject_second_name[SUBJECT_SECOND_NAME_LENGTH];
-	si1	subject_third_name[SUBJECT_THIRD_NAME_LENGTH];
-	si1	subject_id[SUBJECT_ID_LENGTH];
-	si1	session_password[SESSION_PASSWORD_LENGTH];
-	si1	subject_validation_field[SUBJECT_VALIDATION_FIELD_LENGTH];
-	si1	session_validation_field[SESSION_VALIDATION_FIELD_LENGTH];
-	si1	protected_region[PROTECTED_REGION_LENGTH];
-	ui8	number_of_samples;
-	si1	channel_name[CHANNEL_NAME_LENGTH];
-	ui8	recording_start_time;
-	ui8	recording_end_time;
-	sf8	sampling_frequency;
-	sf8	low_frequency_filter_setting;
-	sf8	high_frequency_filter_setting;
-	sf8	notch_filter_frequency;
-	sf8	voltage_conversion_factor;
-	si1	acquisition_system[ACQUISITION_SYSTEM_LENGTH];
-	si1	channel_comments[CHANNEL_COMMENTS_LENGTH];
-	si1	study_comments[STUDY_COMMENTS_LENGTH];
-	si4	physical_channel_number;
-	si1	compression_algorithm[COMPRESSION_ALGORITHM_LENGTH];
-	ui4	maximum_compressed_block_size;
-	ui8 maximum_block_length; 
-	ui8	block_interval;
-	si4 maximum_data_value;
-	si4 minimum_data_value;
-	ui8	index_data_offset;
-	ui8	number_of_index_entries;
-	ui2 block_header_length;
-	sf4 GMT_offset;
-	ui8 discontinuity_data_offset;
-	ui8 number_of_discontinuity_entries;
-    ui1 file_unique_ID[FILE_UNIQUE_ID_LENGTH];
-	si1 anonymized_subject_name[ANONYMIZED_SUBJECT_NAME_LENGTH];
-	ui4 header_crc;
-	INDEX_DATA *file_index;
-	ui8 *discontinuity_data;
+	si1		institution[INSTITUTION_LENGTH];
+	si1		unencrypted_text_field[UNENCRYPTED_TEXT_FIELD_LENGTH];
+	si1		encryption_algorithm[ENCRYPTION_ALGORITHM_LENGTH];
+	ui1		subject_encryption_used;
+	ui1		session_encryption_used;
+	ui1		data_encryption_used;
+	ui1		byte_order_code;
+	ui1		header_version_major;
+	ui1		header_version_minor;
+	ui1		session_unique_ID[SESSION_UNIQUE_ID_LENGTH];
+	ui2		header_length;
+	si1		subject_first_name[SUBJECT_FIRST_NAME_LENGTH];
+	si1		subject_second_name[SUBJECT_SECOND_NAME_LENGTH];
+	si1		subject_third_name[SUBJECT_THIRD_NAME_LENGTH];
+	si1		subject_id[SUBJECT_ID_LENGTH];
+	si1		session_password[SESSION_PASSWORD_LENGTH];
+	si1		subject_validation_field[SUBJECT_VALIDATION_FIELD_LENGTH];
+	si1		session_validation_field[SESSION_VALIDATION_FIELD_LENGTH];
+	si1		protected_region[PROTECTED_REGION_LENGTH];
+	ui8		number_of_samples;
+	si1		channel_name[CHANNEL_NAME_LENGTH];
+	ui8		recording_start_time;
+	ui8		recording_end_time;
+	sf8		sampling_frequency;
+	sf8		low_frequency_filter_setting;
+	sf8		high_frequency_filter_setting;
+	sf8		notch_filter_frequency;
+	sf8		voltage_conversion_factor;
+	si1		acquisition_system[ACQUISITION_SYSTEM_LENGTH];
+	si1		channel_comments[CHANNEL_COMMENTS_LENGTH];
+	si1		study_comments[STUDY_COMMENTS_LENGTH];
+	si4		physical_channel_number;
+	si1		compression_algorithm[COMPRESSION_ALGORITHM_LENGTH];
+	ui4		maximum_compressed_block_size;
+	ui8		maximum_block_length; 
+	ui8		block_interval;
+	si4		maximum_data_value;
+	si4		minimum_data_value;
+	ui8		index_data_offset;
+	ui8		number_of_index_entries;
+	ui2		block_header_length;
+	sf4		GMT_offset;
+	ui8		discontinuity_data_offset;
+	ui8		number_of_discontinuity_entries;
+	ui1		file_unique_ID[FILE_UNIQUE_ID_LENGTH];
+	si1		anonymized_subject_name[ANONYMIZED_SUBJECT_NAME_LENGTH];
+	ui4		header_crc;
+	INDEX_DATA	*file_index;
+	ui8		*discontinuity_data;
 } MEF_HEADER_INFO;
 
 //RED Codec
 #define TOP_VALUE		(ui4) 0x80000000
-#define TOP_VALUE_M_1	(ui4) 0x7FFFFFFF
+#define TOP_VALUE_M_1		(ui4) 0x7FFFFFFF
 #define CARRY_CHECK		(ui4) 0x7F800000
 #define SHIFT_BITS		23
 #define EXTRA_BITS		7
-#define BOTTOM_VALUE	(ui4) 0x800000
-#define BOTTOM_VALUE_M_1 (ui4) 0x7FFFFF
+#define BOTTOM_VALUE		(ui4) 0x800000
+#define BOTTOM_VALUE_M_1	(ui4) 0x7FFFFF
 #define FILLER_BYTE		(ui1) 0x55 
 
 //
 /* 4 byte checksum, 4 byte compressed byte count, 8 byte time value, 4 byte difference count,  */
 /* 4 byte sample count, 3 byte data maximum, 3 byte data minimum, 1 byte discontinuity flag, 256 byte model counts */
-#define BLOCK_HEADER_BYTES	287
-#define RED_CHECKSUM_OFFSET 0
-#define RED_CHECKSUM_LENGTH 4
-#define RED_COMPRESSED_BYTE_COUNT_OFFSET 4
-#define RED_UUTC_TIME_OFFSET 8
-#define RED_DIFFERENCE_COUNT_OFFSET 16
-#define RED_SAMPLE_COUNT_OFFSET 20
-#define RED_DATA_MAX_OFFSET 24
-#define RED_DATA_MIN_OFFSET 27
-#define RED_DISCONTINUITY_OFFSET 30
-#define RED_STAT_MODEL_OFFSET 31
-#define RED_DATA_OFFSET BLOCK_HEADER_BYTES
+#define BLOCK_HEADER_BYTES			287
+#define RED_CHECKSUM_OFFSET			0
+#define RED_CHECKSUM_LENGTH			4
+#define RED_COMPRESSED_BYTE_COUNT_OFFSET	4
+#define RED_UUTC_TIME_OFFSET			8
+#define RED_DIFFERENCE_COUNT_OFFSET		16
+#define RED_SAMPLE_COUNT_OFFSET			20
+#define RED_DATA_MAX_OFFSET			24
+#define RED_DATA_MIN_OFFSET			27
+#define RED_DISCONTINUITY_OFFSET		30
+#define RED_STAT_MODEL_OFFSET			31
+#define RED_DATA_OFFSET				BLOCK_HEADER_BYTES
 
 /****************************************************************************************************/
 /***  block size defines desired packet spacing - do not exceed 2^23 = 8388608 samples per block  ***/
@@ -315,45 +331,59 @@ typedef struct {
 	ui1	out_byte;
 	ui4	underflow_bytes;
 	ui1	*ob_p;
-}RANGE_STATS;
+} RANGE_STATS;
+
+// AES
+#define AES_ENCRYPTION_KEY_LENGTH	240
 
 // mef_lib function prototypes
-si4		build_mef_header_block(ui1 *encrypted_hdr_block, MEF_HEADER_INFO *hdr_struct, si1 *master_password);
-si4		read_mef_header_block(ui1 *header_block, MEF_HEADER_INFO *header_struct, si1 *password);
-si4		validate_password(ui1 *header_block, si1 *password);
-void	showHeader(MEF_HEADER_INFO *headerStruct);
-ui8		generate_unique_ID(ui1 *array);
-void	set_hdr_unique_ID(MEF_HEADER_INFO *header, ui1 *array);
-void	set_block_hdr_unique_ID(ui1 *block_header, ui1 *array);
-ui8		set_session_unique_ID(char *file_name, ui1 *array);
-si4		check_header_block_alignment(ui1 *header_block, si4 verbose);
-void	strncpy2(si1 *s1, si1 *s2, si4 n);
-void	init_hdr_struct(MEF_HEADER_INFO *header);
-si4		write_mef(si4 *samps, MEF_HEADER_INFO *mef_header, ui8 len, si1 *out_file, si1 *subject_password);
-si4		build_RED_block_header(ui1 *header_block, RED_BLOCK_HDR_INFO *header_struct);
-si4		read_RED_block_header(ui1 *header_block, RED_BLOCK_HDR_INFO *header_struct);
-ui4		calculate_compressed_block_CRC(ui1 *data_block);
-ui4		update_crc_32(ui4 crc, si1 c );
-void	init_crc32_tab( void );
-void	AES_encrypt(unsigned char *in, unsigned char *out, char *password);
-void	AES_encryptWithKey(unsigned char *in, unsigned char *out, unsigned char *RoundKey);
-void	AES_decrypt(unsigned char *in, unsigned char *out, char *password);
-ui8		RED_decompress_block(ui1 *in_buffer, si4 *out_buffer, si1 *diff_buffer, si1 *key, ui1 validate_CRC, ui1 data_encryption,  RED_BLOCK_HDR_INFO *block_hdr_struct);
-static inline void dec_normalize(ui4 *range, ui4 *low_bound, ui1 *in_byte, ui1 **ib_p);
-ui8		RED_compress_block(si4 *in_buffer, ui1 *out_buffer, ui4 num_entries, ui8 uUTC_time, ui1 discontinuity, si1 *key, ui1 data_encryption, RED_BLOCK_HDR_INFO *block_hdr);
-void	done_encoding(RANGE_STATS *rstats);
-inline void encode_symbol(ui1 symbol, ui4 symbol_cnts, ui4 cnts_lt_symbol, ui4 tot_cnts, RANGE_STATS *rstats );
-inline void enc_normalize(RANGE_STATS *rstats);
-static inline void dec_normalize(ui4 *range, ui4 *low_bound, ui1 *in_byte, ui1 **ib_p);
-ui1	cpu_endianness();
-void	reverse_in_place(void *x, si4 len);
-si2		rev_si2(si2 x);
-ui2		rev_ui2(ui2 x);
-ui8		rev_ui8(ui8 x);
-sf8		rev_sf8(sf8 x);
-si4		rev_si4(si4 x);
-ui4		rev_ui4(ui4 x);
-sf4		rev_sf4(sf4 x);
+si4		build_mef_header_block(ui1 *, MEF_HEADER_INFO *, si1 *);
+si4		read_mef_header_block(ui1 *, MEF_HEADER_INFO *, si1 *);
+si4		validate_password(ui1 *, si1 *);
+void		showHeader(MEF_HEADER_INFO *);
+ui8		generate_unique_ID(ui1 *);
+void		set_hdr_unique_ID(MEF_HEADER_INFO *, ui1 *);
+void		set_block_hdr_unique_ID(ui1 *, ui1 *);
+ui8		set_session_unique_ID(char *, ui1 *);
+si4		check_header_block_alignment(ui1 *, si4);
+void		strncpy2(si1 *, si1 *, si4);
+void		init_hdr_struct(MEF_HEADER_INFO *);
+si4		write_mef(si4 *, MEF_HEADER_INFO *, ui8, si1 *, si1 *);
+si4		build_RED_block_header(ui1 *, RED_BLOCK_HDR_INFO *);
+si4		read_RED_block_header(ui1 *, RED_BLOCK_HDR_INFO *);
+ui4		calculate_compressed_block_CRC(ui1 *);
+ui4		update_crc_32(ui4, si1);
+void		init_crc32_tab(void);
+ui8		RED_decompress_block(ui1 *, si4 *, si1 *, ui1 *, ui1, ui1,  RED_BLOCK_HDR_INFO *);
+inline void	dec_normalize(ui4 *, ui4 *, ui1 *, ui1 **);
+ui8		RED_compress_block(si4 *, ui1 *, ui4, ui8, ui1, ui1 *, ui1, RED_BLOCK_HDR_INFO *);
+void		done_encoding(RANGE_STATS *);
+inline void	encode_symbol(ui1, ui4, ui4, ui4, RANGE_STATS *);
+inline void	enc_normalize(RANGE_STATS *);
+ui1		cpu_endianness();
+void		reverse_in_place(void *, si4);
+si2		rev_si2(si2);
+ui2		rev_ui2(ui2);
+ui8		rev_ui8(ui8);
+sf8		rev_sf8(sf8);
+si4		rev_si4(si4);
+ui4		rev_ui4(ui4);
+sf4		rev_sf4(sf4);
+void		AES_decryptWithKey(ui1 *, ui1 *, ui1 *);
+void		AES_decrypt(ui1 *, ui1 *, si1 *);
+void		AES_encryptWithKey(ui1 *, ui1 *, ui1 *);
+void		AES_encrypt(ui1 *, ui1 *, si1 *);
+void		InvCipher(si4, ui1 *, ui1 *, ui1 [][4], ui1 *);
+void		Cipher(si4, ui1 *, ui1 *, ui1 [][4], ui1 *);
+void		InvMixColumns(ui1 [][4]);
+void		MixColumns(ui1 [][4]);
+void		InvShiftRows(ui1 [][4]);
+void		ShiftRows(ui1 [][4]);
+void		SubBytes(ui1 [][4]);
+void		AddRoundKey(si4, ui1 [][4], ui1*);
+void		AES_KeyExpansion(si4, si4, ui1 *, si1 *);
+si4		getSBoxInvert(si4);
+si4		getSBoxValue(si4);
 
 #endif
 
