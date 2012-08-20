@@ -72,7 +72,7 @@ si4	build_mef_header_block(ui1 *encrypted_hdr_block, MEF_HEADER_INFO *hdr_struct
 	/* check passwords */
 	if (hs->subject_encryption_used) 
 	{
-		l = (si4) strlen(password); //entered password should be subject
+		l = (si4) strlen(password); 
 		if (l >= ENCRYPTION_BLOCK_BYTES || l == 0) {
 			(void) printf("\n%s: subject password error\n", __FUNCTION__);
 			return(1);
@@ -82,21 +82,19 @@ si4	build_mef_header_block(ui1 *encrypted_hdr_block, MEF_HEADER_INFO *hdr_struct
 	{
 		if (hs->subject_encryption_used) //subject AND session encryption used:
 			l = (si4) strlen(hs->session_password);   // session password taken from the mef header structure
-		else //session encryption ONLY used
+		else 
 		{
-			l = (si4) strlen(password); //entered password should be session
+			l = (si4) strlen(password); 
 			if (l == 0)
 			{
-				//OR - session password may just be in the header - copy to password field
 				l = (si4) strlen(hs->session_password);
-				if (l) strncpy2(password, hs->session_password, SESSION_PASSWORD_LENGTH); //no need for else here- l=0 case passes to error check below
+				if (l) strncpy2(password, hs->session_password, SESSION_PASSWORD_LENGTH);
 			}
 			else
 			{
-				//if session password isn't in header structure copy it there
 				if (hs->session_password[0] == 0)
 					strncpy2(hs->session_password, password, SESSION_PASSWORD_LENGTH);
-			} //Now session password should be in both the header and the password variable
+			} 
 		}
 		if (l >= ENCRYPTION_BLOCK_BYTES || l == 0) {
 			(void) printf("\n%s: session password error\n", __FUNCTION__);
