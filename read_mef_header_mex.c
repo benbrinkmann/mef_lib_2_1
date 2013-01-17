@@ -71,9 +71,7 @@ int read_mef_header(char *f_name, MEF_HEADER_INFO *hdr_info, char *password)
 		mexErrMsgTxt("[read_mef_header] is currently only compatible with little-endian files (file \"%s\") => exiting");
 		return(1);
 	}
-
-    printf("%d\n", hdr_info->header_crc);
-    
+   
 	return(0);
 }
 
