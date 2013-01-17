@@ -19,8 +19,11 @@ m2r:
 
 edf:
 	$(CC) -o edf2mef $(CFLAGS) $(OPTFLAGS) edf2mef.c $(SRCFILES) -I $(INCLUDE) $(LF)
+	
+crc:
+	$(CC) -o fixCRC $(CFLAGS) $(OPTFLAGS) fix_CRC.c $(SRCFILES) -I $(INCLUDE) $(LF)
 
 
-all:  read check anon m2r edf
+all:  read check anon m2r edf crc
 
 

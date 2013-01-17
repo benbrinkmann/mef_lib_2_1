@@ -26,7 +26,7 @@
 #include "matrix.h"
 #include "mef.h"
 
-#define BIG_ENDIAN_CODE		0
+#define BIG_ENDIAN_CODE  	0
 #define LITTLE_ENDIAN_CODE	1
 
 int read_mef_header(char *f_name, MEF_HEADER_INFO *hdr_info, char *password)
@@ -342,3 +342,4 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	
 	return;
 } 
+
