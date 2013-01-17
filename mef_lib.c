@@ -1,5 +1,4 @@
 //	MEF library
-//	Note: need to compile with AES_encryption.c
 /*
 # Copyright 2012, Mayo Foundation, Rochester MN. All rights reserved
 # Written by Ben Brinkmann, Matt Stead, Dan Crepeau, and Vince Vasoli
@@ -205,6 +204,7 @@ si4	read_mef_header_block(ui1 *header_block, MEF_HEADER_INFO *header_struct, si1
 {
 	MEF_HEADER_INFO	*hs;
 	si4		i, privileges, encrypted_segments, session_is_readable, subject_is_readable;
+	ui4		crc;
 	si1		*encrypted_string;
 	ui1		*hb, *dhbp, dhb[MEF_HEADER_LENGTH];
 	si1		dummy;
@@ -279,7 +279,6 @@ si4	read_mef_header_block(ui1 *header_block, MEF_HEADER_INFO *header_struct, si1
 			(void) fprintf(stderr, "%s: unrecognized password %s\n", __FUNCTION__, password);
 		}
 	}
-	
 
 	if (hs->subject_encryption_used && (privileges == 1)) //subject encryption case
 	{
@@ -408,13 +407,42 @@ si4	read_mef_header_block(ui1 *header_block, MEF_HEADER_INFO *header_struct, si1
         hs->number_of_discontinuity_entries = 0;
 	}
     
+	//unencrypted tail section of header
     for(i=0; i<FILE_UNIQUE_ID_LENGTH; i++)
 		hs->file_unique_ID[i] = *(dhb + FILE_UNIQUE_ID_OFFSET + i*sizeof(ui1));
-    strncpy2(hs->anonymized_subject_name, (si1 *) (dhb + ANONYMIZED_SUBJECT_NAME_OFFSET), ANONYMIZED_SUBJECT_NAME_LENGTH);
-    hs->header_crc = 0; // TBD: validate header integrity here?
+    
+	strncpy2(hs->anonymized_subject_name, (si1 *) (dhb + ANONYMIZED_SUBJECT_NAME_OFFSET), ANONYMIZED_SUBJECT_NAME_LENGTH);
+	
+	hs->header_crc = *((ui4 *) (dhb + HEADER_CRC_OFFSET));
+	
+	crc = calculate_header_CRC(header_block);
+	if (crc != hs->header_crc) {
+		fprintf(stderr, "[%s] Stored header CRC and calculated CRC conflict. Header may be corrupt.\n\n", __FUNCTION__);
+	}
 	
 	return(0);
 }
+
+ui4 calculate_header_CRC(ui1 *header)
+{
+	int i;
+	ui4 checksum;
+	
+	if (header == NULL) {
+		fprintf(stderr, "[%s] Error: NULL data pointer passed in\n", __FUNCTION__);
+		return(1);
+	}
+	
+	
+	//calculate CRC checksum - skip first 4 bytes
+	checksum = 0xffffffff;
+	for (i = 0; i < HEADER_CRC_OFFSET; i++) //skip first 4 bytes- don't include the CRC itself in calculation
+		checksum = update_crc_32(checksum, *(header + i));
+	
+	return checksum;
+}
+
+
 
 //=================================================================================================================
 //si4	validate_password(ui1 *header_block, si1 *password)
@@ -666,6 +694,9 @@ void showHeader(MEF_HEADER_INFO *headerStruct)
     
         if (headerStruct->anonymized_subject_name[0]) (void) fprintf(stdout, "anonymized_subject_name = %s\n", headerStruct->anonymized_subject_name);
         else (void) fprintf(stdout, "anonymized_subject_name= %s\n", temp_str);
+		
+		if (headerStruct->header_crc) (void) fprintf(stdout, "header_crc = %u\n", headerStruct->header_crc);
+		else (void) fprintf(stdout, "header_crc = %s\n", temp_str);
     }
     
 	return;
