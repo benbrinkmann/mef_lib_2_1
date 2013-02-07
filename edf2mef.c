@@ -33,15 +33,15 @@ int main (int argc, const char * argv[]) {
 	MEF_HEADER_INFO header, *hdr_array;
 	RED_BLOCK_HDR_INFO RED_bk_hdr;
 	INDEX_DATA *toc_array;
-
-
+	
+	
 	if (argc < 2) 
 	{
 		(void) printf("USAGE: %s file_name(s) [options]\n", argv[0]);
 		(void) printf("Options:\n \t-v    \t\tverbose\n");
 		(void) printf("\t-sub  \tsubject password\n");
 		(void) printf("\t-ses  \tsession password\n");
-
+		
 		return(1);
 	}
 	
@@ -51,7 +51,7 @@ int main (int argc, const char * argv[]) {
 	memset(subject_password, 0, 32);
 	memset(session_password, 0, 32);
 	memset(file_hdr, 0, MEF_HEADER_LENGTH);
-
+	
 	numFiles = argc-1;
 	
 	//parse options
@@ -67,8 +67,8 @@ int main (int argc, const char * argv[]) {
 				numFiles -= 2;
 			}
 			if(argv[i][1]=='v') {
-			   verbose=1;
-			   numFiles--;
+				verbose=1;
+				numFiles--;
 			}
 		}
 	}
@@ -88,7 +88,7 @@ int main (int argc, const char * argv[]) {
 		}
 		fseek(fp, EDF_HEADER_BYTES_OFFSET, SEEK_SET);
 		fscanf(fp, "%d", &edfHeaderLength);	
-
+		
 		edf_header = (char *)calloc(edfHeaderLength, sizeof(char));
 		fseek(fp, 0, SEEK_SET);
 		nr = fread(edf_header, sizeof(char), edfHeaderLength, fp);
@@ -105,7 +105,7 @@ int main (int argc, const char * argv[]) {
 		if (*subject_password) {
             header.subject_encryption_used = 1;
         }		
-
+		
 		memcpy(header.institution, (edf_header + EDF_LOCAL_RECORDING_INFO_OFFSET), EDF_LOCAL_RECORDING_INFO_LENGTH);
 		memcpy(temp_str, (edf_header + EDF_NUMBER_OF_SIGNALS_OFFSET), EDF_NUMBER_OF_SIGNALS_LENGTH);
 		temp_str[EDF_NUMBER_OF_SIGNALS_LENGTH]=0;
@@ -128,7 +128,7 @@ int main (int argc, const char * argv[]) {
 			fprintf(stderr, "Malloc error near %d\n", __LINE__);
 			return(1);
 		}
-
+		
 		//for convenience, 1 mef block = 1 data record
 		memcpy(temp_str, (edf_header + EDF_NUMBER_OF_DATA_RECORDS_OFFSET), EDF_NUMBER_OF_DATA_RECORDS_LENGTH);
 		temp_str[EDF_NUMBER_OF_DATA_RECORDS_LENGTH]=0;
@@ -149,6 +149,7 @@ int main (int argc, const char * argv[]) {
 		if (year > 70) year += 1900;
 		else year += 2000;
 		hdrtime->tm_year = year - 1900;
+		hdrtime->tm_mon--; //tm struct expects months elapsed since January
 		//parse temp_str to get recording start date
 		
 		memcpy(temp_str, (edf_header + EDF_START_TIME_OFFSET), EDF_START_TIME_LENGTH);
@@ -157,15 +158,14 @@ int main (int argc, const char * argv[]) {
 		
 		//**** TODO: Update offset to GMT depending on where edf file was recorded!
 		header.recording_start_time = (ui8)mktime(hdrtime)*1000000;
-		
-		//NOTE: this logic is incorrect as it doesn't account for potential partially filled final data record. RET will be replaced with correct value later
-		header.recording_end_time = header.recording_start_time + header.block_interval * header.number_of_index_entries;
-		
+		printf("EDF header time is: %s\n\n", asctime(hdrtime));
+		header.GMT_offset = -6.0;
+
 		memcpy(temp_str, (edf_header+EDF_PATIENT_INFO_OFFSET), EDF_PATIENT_INFO_LENGTH);
 		temp_str[EDF_PATIENT_INFO_LENGTH]=0;
 		dot = strchr(temp_str, '.');
 		l = strlen(temp_str);
-        printf("%d\n", (int)l);
+
 		ubar = strrchr(temp_str, '_');
 		if (ubar == NULL || dot == NULL) {
             if (l>32) l=31;
@@ -182,7 +182,7 @@ int main (int argc, const char * argv[]) {
             }
 		}
 		sprintf(header.channel_comments, "converted from EDF");
-
+		
 		fseek(fp, 0, SEEK_END);
 		inDataLength = ftell(fp) - edfHeaderLength;
 		fseek(fp, edfHeaderLength, SEEK_SET);
@@ -232,7 +232,7 @@ int main (int argc, const char * argv[]) {
                 }
             }
             l=strlen(temp_str);
-
+			
             if (strcmp(&temp_str[l-5], "-REF")) temp_str[l-4]=0;
 			sscanf(temp_str, "%s", hdr_array[i].channel_name);
 			
@@ -264,7 +264,7 @@ int main (int argc, const char * argv[]) {
 			c_ptr = temp_str; while(*c_ptr == ' ') c_ptr++;
 			if (strncmp(c_ptr, "uV", 2)==0 ) hdr_array[i].voltage_conversion_factor = 1.0;
 			if (strncmp(c_ptr, "mV", 2)==0 ) hdr_array[i].voltage_conversion_factor = 1000.0;
-
+			
 			//read EDF samples into data buffer
 			for (j=0; j<header.number_of_index_entries; j++) {
 				//use previously calculated final_record_fraction to figure out how far to read
@@ -287,8 +287,8 @@ int main (int argc, const char * argv[]) {
 				else discontinuity_flag = 0;
 				block_hdr_time = hdr_array[i].recording_start_time + (ui8)(1000000.0*(sf8)(j * data_len[i])/hdr_array[i].sampling_frequency +0.5); 
 				*data_key = 0; //add support for data compression later if needed
-				RED_block_size = RED_compress_block(data, out_data, data_len[i], block_hdr_time, (ui1)discontinuity_flag, data_key, 0, &RED_bk_hdr);
-
+				RED_block_size = RED_compress_block(data, out_data, data_len[i], block_hdr_time, (ui1)discontinuity_flag, data_key, hdr_array[i].data_encryption_used, &RED_bk_hdr);
+				
 				toc_array[j].time = block_hdr_time;
 				toc_array[j].sample_number = j * data_len[i];
 				toc_array[j].file_offset = ftell(out_fp[i]);
@@ -326,7 +326,7 @@ int main (int argc, const char * argv[]) {
 		}
 		
 		fclose(fp);
-		}
+	}
 	
 	free(edf_header); edf_header = NULL;
 	free(hdr_array); hdr_array = NULL;
@@ -336,9 +336,7 @@ int main (int argc, const char * argv[]) {
 	free(toc_array); toc_array=NULL;
 	free(data); data = NULL;
 	free(out_data); out_data = NULL;
-
+	
 	return 0;
 	
 }
-
-
