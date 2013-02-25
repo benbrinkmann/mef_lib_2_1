@@ -178,7 +178,6 @@ si4	build_mef_header_block(ui1 *encrypted_hdr_block, MEF_HEADER_INFO *hdr_struct
 	*((ui8 *) (ehb + NUMBER_OF_DISCONTINUITY_ENTRIES_OFFSET)) = hs->number_of_discontinuity_entries;
 	memcpy(ehb + FILE_UNIQUE_ID_OFFSET, hs->file_unique_ID, FILE_UNIQUE_ID_LENGTH);
 	strncpy2((si1 *) (ehb + ANONYMIZED_SUBJECT_NAME_OFFSET), hs->anonymized_subject_name, ANONYMIZED_SUBJECT_NAME_LENGTH);
-	*((ui4 *) (ehb + HEADER_CRC_OFFSET)) = hs->header_crc;
 	
 	// apply session encryption to session block
 	if (hs->session_encryption_used) {
@@ -194,6 +193,10 @@ si4	build_mef_header_block(ui1 *encrypted_hdr_block, MEF_HEADER_INFO *hdr_struct
 			ehbp += ENCRYPTION_BLOCK_BYTES;
 		}
 	}
+	
+	//calculate header CRC over the encoded and encrypted header
+	*((ui4 *) (ehb + HEADER_CRC_OFFSET)) = calculate_header_CRC(ehb);
+
 		
 	return(0);
 }
