@@ -238,7 +238,7 @@ int main (int argc, const char * argv[]) {
 
 			//finish reading relevant variable len edf header values, copy to mef header fields
 			//need sampling frequency
-			
+			hdr_array[i].physical_channel_number = (si4)i;
 			hdr_array[i].sampling_frequency = (sf8)edfblocks * 1000000.0 * (sf8)data_len[i]/(sf8)header.block_interval;
 			hdr_array[i].number_of_samples = (ui8)(data_len[i] * (header.number_of_index_entries-1)) + (ui8)(final_record_fraction * (sf8)header.number_of_index_entries);
 			hdr_array[i].recording_end_time = header.recording_start_time + (ui8)(1000000.0*((sf8)(hdr_array[i].number_of_samples)/hdr_array[i].sampling_frequency));
@@ -287,8 +287,8 @@ int main (int argc, const char * argv[]) {
 				
 				//find samples in edf file, read into buffer
 				for (c=0; c<edfblocks; c++){
-					for (k=0; k<dl; k++) {
-						data[k] = (si4)(*(edf_data + (j*(ui8)edfblocks + c) * total_record_len + (ui8)cum_data_len[i] + k ));
+					for (k=0; k<data_len[i]; k++) {
+						data[k+c*data_len[i]] = (si4)(*(edf_data + (j*(ui8)edfblocks + c) * total_record_len + (ui8)cum_data_len[i] + k ));
 					}
 				}
 			
@@ -298,11 +298,11 @@ int main (int argc, const char * argv[]) {
 				else discontinuity_flag = 0;
 				block_hdr_time = hdr_array[i].recording_start_time + (ui8)(1000000.0*(sf8)(j * data_len[i])/hdr_array[i].sampling_frequency +0.5); 
 				*data_key = 0; //add support for data encryption later if needed
-				RED_block_size = RED_compress_block(data, out_data, data_len[i], block_hdr_time, (ui1)discontinuity_flag, data_key, hdr_array[i].data_encryption_used, &RED_bk_hdr);
+				RED_block_size = RED_compress_block(data, out_data, dl, block_hdr_time, (ui1)discontinuity_flag, data_key, hdr_array[i].data_encryption_used, &RED_bk_hdr);
 
 				//update toc 
 				toc_array[j].time = block_hdr_time;
-				toc_array[j].sample_number = j * data_len[i];
+				toc_array[j].sample_number = j * dl;
 				toc_array[j].file_offset = ftell(out_fp[i]);
 				fwrite(out_data, sizeof(si1), RED_block_size, out_fp[i]);
 				
