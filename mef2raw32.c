@@ -32,8 +32,8 @@ int main (int argc, const char * argv[]) {
 	si4 i, num, numBlocks, l, blocks_per_cycle, start_block, end_block;
 	si4 *data, *dp;
 	ui8 numEntries, inDataLength, outDataLength, bytesDecoded, entryCounter;
-	si1 password[16], outFileName[200], path[200], encryptionKey[240];
-	ui1 *hdr_block, *in_data, *idp, *diff_buffer, *dbp;
+	si1 password[16], outFileName[200], path[200], *diff_buffer, *dbp;
+	ui1 *hdr_block, *in_data, *idp,  encryptionKey[240];
 	FILE *fp, *out_fp;
 	MEF_HEADER_INFO header;
 	RED_BLOCK_HDR_INFO RED_bk_hdr;
@@ -99,7 +99,7 @@ int main (int argc, const char * argv[]) {
 		return 1;
 	}
 	
-	diff_buffer = malloc(header.maximum_block_length * 4);
+	diff_buffer = (si1 *)malloc(header.maximum_block_length * 4);
 	in_data = malloc(inDataLength);
 	outDataLength = blocks_per_cycle * header.maximum_block_length; //Note: this is only the max data length per decompression cycle....
 	//data = calloc(numEntries, sizeof(ui4));	
