@@ -1425,9 +1425,9 @@ si4 validate_mef(char *mef_filename, char *log_filename, char *password)
 		if (logfile) fprintf(lfp, "%s", message);
 	}
 	calc_end_time = header.recording_start_time + (ui8)(0.5 + 1000000.0 * (sf8)header.number_of_samples/header.sampling_frequency);
-	if (header.recording_end_time < calc_end_time) {
+	if (header.recording_end_time < calc_end_time - 1) {
 		num_errors++;
-		sprintf(message, "Header recording_end_time %lu does not match sampling freqency and number of samples\n", header.recording_end_time);
+		sprintf(message, "Header recording_end_time %lu does not match sampling freqency and number of samples %lu\n", header.recording_end_time, calc_end_time);
 		fprintf(stdout, "%s", message);
 		if (logfile) fprintf(lfp, "%s", message);
 	}
