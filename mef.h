@@ -339,7 +339,7 @@ typedef struct {
 // mef_lib function prototypes
 si4		build_mef_header_block(ui1 *, MEF_HEADER_INFO *, si1 *);
 si4		read_mef_header_block(ui1 *, MEF_HEADER_INFO *, si1 *);
-ui4 	calculate_header_CRC();
+ui4		calculate_header_CRC();
 si4		validate_password(ui1 *, si1 *);
 void		showHeader(MEF_HEADER_INFO *);
 ui8		generate_unique_ID(ui1 *);
